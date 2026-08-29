@@ -1,0 +1,27 @@
+- name: Azure Login
+  uses: azure/login@v2
+  with:
+    creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+- name: Check Azure Subscription
+  run: |
+    echo "Azure Account:"
+    az account show --output table
+
+    echo "Subscription ID:"
+    az account show --query id -o tsv
+
+    echo "Available Subscriptions:"
+    az account list --output table
+
+- name: Setup Terraform
+  uses: hashicorp/setup-terraform@v3
+
+- name: Terraform Init
+  run: terraform init
+
+- name: Terraform Validate
+  run: terraform validate
+
+- name: Terraform Plan
+  run: terraform plan
