@@ -5,22 +5,28 @@ on:
 
 jobs:
 
-  # ==============================
-  # Terraform Init
-  # ==============================
   terraform-init:
 
     name: Terraform Init
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./environment/dev
-
     steps:
 
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Check Repository Structure
+        run: |
+          echo "Current directory:"
+          pwd
+
+          echo ""
+          echo "Files and folders:"
+          ls -la
+
+          echo ""
+          echo "Directory structure:"
+          find . -maxdepth 4 -type d | sort
 
       - name: Azure Login
         uses: azure/login@v2
@@ -31,78 +37,5 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init
-
-
-  # ==============================
-  # Terraform Plan
-  # ==============================
-  terraform-plan:
-
-    name: Terraform Plan
-    runs-on: ubuntu-latest
-
-    needs: terraform-init
-
-    defaults:
-      run:
         working-directory: ./environment/dev
-
-    steps:
-
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
         run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan
-
-
-  # ==============================
-  # Terraform Apply
-  # ==============================
-  terraform-apply:
-
-    name: Terraform Apply
-    runs-on: ubuntu-latest
-
-    needs: terraform-plan
-
-    environment:
-      name: production
-
-    defaults:
-      run:
-        working-directory: ./environment/dev
-
-    steps:
-
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
