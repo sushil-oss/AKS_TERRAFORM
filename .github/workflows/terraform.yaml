@@ -15,18 +15,30 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Check Repository Structure
+      - name: Show Repository Structure
         run: |
-          echo "Current directory:"
+          echo "===================================="
+          echo "Current Directory"
+          echo "===================================="
           pwd
 
           echo ""
-          echo "Files and folders:"
+          echo "===================================="
+          echo "Root Files"
+          echo "===================================="
           ls -la
 
           echo ""
-          echo "Directory structure:"
-          find . -maxdepth 4 -type d | sort
+          echo "===================================="
+          echo "All Directories"
+          echo "===================================="
+          find . -maxdepth 5 -type d | sort
+
+          echo ""
+          echo "===================================="
+          echo "All Terraform Files"
+          echo "===================================="
+          find . -type f \( -name "*.tf" -o -name "*.tfvars" \) | sort
 
       - name: Azure Login
         uses: azure/login@v2
@@ -36,6 +48,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        working-directory: ./environment/dev
-        run: terraform init
+      # TEMPORARILY COMMENTED
+      # - name: Terraform Init
+      #   working-directory: ./environment/dev
+      #   run: terraform init
