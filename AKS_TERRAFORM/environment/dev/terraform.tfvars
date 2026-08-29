@@ -4,10 +4,10 @@ rg = {
     location = "East US"
   }
 
-  rg2 = {
-    name = "sushil-rg2"
-    location = "West US"
-  }
+#  rg2 = {
+#    name = "sushil-rg2"
+#    location = "West US"
+#  }
 }
 
 
@@ -22,12 +22,12 @@ aks = {
     vm_size             = "Standard_D2s_v3"
   }
 
-  aks2 = {
-    name                = "sushil-aks2"
-    location            = "West US"
-    resource_group_name = "sushil-rg2"
-    dns_prefix          = "sushilaks2"
-    node_count          = 1
-    vm_size             = "Standard_D2s_v3"
-  }
+#  aks2 = {
+#    name                = "sushil-aks2"
+ #   location            = "West US"
+  #  resource_group_name = "sushil-rg2"
+   # dns_prefix          = "sushilaks2"
+    #node_count          = 1
+   # vm_size             = "Standard_D2s_v3"
+  #}
 }
