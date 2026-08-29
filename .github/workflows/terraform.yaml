@@ -5,40 +5,22 @@ on:
 
 jobs:
 
+  # ==========================================
+  # Terraform Init
+  # ==========================================
   terraform-init:
 
     name: Terraform Init
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./AKS_TERRAFORM/environment/dev
+
     steps:
 
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Show Repository Structure
-        run: |
-          echo "===================================="
-          echo "Current Directory"
-          echo "===================================="
-          pwd
-
-          echo ""
-          echo "===================================="
-          echo "Root Files"
-          echo "===================================="
-          ls -la
-
-          echo ""
-          echo "===================================="
-          echo "All Directories"
-          echo "===================================="
-          find . -maxdepth 5 -type d | sort
-
-          echo ""
-          echo "===================================="
-          echo "All Terraform Files"
-          echo "===================================="
-          find . -type f \( -name "*.tf" -o -name "*.tfvars" \) | sort
 
       - name: Azure Login
         uses: azure/login@v2
@@ -48,7 +30,79 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # TEMPORARILY COMMENTED
-      # - name: Terraform Init
-      #   working-directory: ./environment/dev
-      #   run: terraform init
+      - name: Terraform Init
+        run: terraform init
+
+
+  # ==========================================
+  # Terraform Plan
+  # ==========================================
+  terraform-plan:
+
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+
+    needs: terraform-init
+
+    defaults:
+      run:
+        working-directory: ./AKS_TERRAFORM/environment/dev
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan
+
+
+  # ==========================================
+  # Terraform Apply
+  # ==========================================
+  terraform-apply:
+
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+
+    needs: terraform-plan
+
+    environment:
+      name: production
+
+    defaults:
+      run:
+        working-directory: ./AKS_TERRAFORM/environment/dev
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
