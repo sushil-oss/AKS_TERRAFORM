@@ -1,27 +1,138 @@
-- name: Azure Login
-  uses: azure/login@v2
-  with:
-    creds: ${{ secrets.AZURE_CREDENTIALS }}
+name: Terraform Azure VM Deploy
 
-- name: Check Azure Subscription
-  run: |
-    echo "Azure Account:"
-    az account show --output table
+on:
+  workflow_dispatch:
 
-    echo "Subscription ID:"
-    az account show --query id -o tsv
+jobs:
 
-    echo "Available Subscriptions:"
-    az account list --output table
+  # ==========================================
+  # Terraform Init
+  # ==========================================
+  terraform-init:
 
-- name: Setup Terraform
-  uses: hashicorp/setup-terraform@v3
+    name: Terraform Init
+    runs-on: ubuntu-latest
 
-- name: Terraform Init
-  run: terraform init
+    defaults:
+      run:
+        working-directory: ./AKS_TERRAFORM/environment/dev
 
-- name: Terraform Validate
-  run: terraform validate
+    steps:
 
-- name: Terraform Plan
-  run: terraform plan
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Check Azure Subscription
+        run: |
+          echo "Current Azure Subscription:"
+          az account show --output table
+
+          echo "Available Subscriptions:"
+          az account list --output table
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+
+  # ==========================================
+  # Terraform Plan
+  # ==========================================
+  terraform-plan:
+
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+
+    needs: terraform-init
+
+    defaults:
+      run:
+        working-directory: ./AKS_TERRAFORM/environment/dev
+
+    env:
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Check Azure Subscription
+        run: |
+          echo "Current Azure Subscription:"
+          az account show --output table
+
+          echo "Available Subscriptions:"
+          az account list --output table
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan
+
+
+  # ==========================================
+  # Terraform Apply
+  # ==========================================
+  terraform-apply:
+
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+
+    needs: terraform-plan
+
+    environment:
+      name: production
+
+    defaults:
+      run:
+        working-directory: ./AKS_TERRAFORM/environment/dev
+
+    env:
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Check Azure Subscription
+        run: |
+          echo "Current Azure Subscription:"
+          az account show --output table
+
+          echo "Available Subscriptions:"
+          az account list --output table
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
