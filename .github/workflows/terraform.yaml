@@ -1,108 +1,27 @@
-name: Terraform Azure VM Deploy
+- name: Azure Login
+  uses: azure/login@v2
+  with:
+    creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-on:
-  workflow_dispatch:
+- name: Check Azure Subscription
+  run: |
+    echo "Azure Account:"
+    az account show --output table
 
-jobs:
+    echo "Subscription ID:"
+    az account show --query id -o tsv
 
-  # ==========================================
-  # Terraform Init
-  # ==========================================
-  terraform-init:
+    echo "Available Subscriptions:"
+    az account list --output table
 
-    name: Terraform Init
-    runs-on: ubuntu-latest
+- name: Setup Terraform
+  uses: hashicorp/setup-terraform@v3
 
-    defaults:
-      run:
-        working-directory: ./AKS_TERRAFORM/environment/dev
+- name: Terraform Init
+  run: terraform init
 
-    steps:
+- name: Terraform Validate
+  run: terraform validate
 
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform init
-
-
-  # ==========================================
-  # Terraform Plan
-  # ==========================================
-  terraform-plan:
-
-    name: Terraform Plan
-    runs-on: ubuntu-latest
-
-    needs: terraform-init
-
-    defaults:
-      run:
-        working-directory: ./AKS_TERRAFORM/environment/dev
-
-    steps:
-
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan
-
-
-  # ==========================================
-  # Terraform Apply
-  # ==========================================
-  terraform-apply:
-
-    name: Terraform Apply
-    runs-on: ubuntu-latest
-
-    needs: terraform-plan
-
-    environment:
-      name: production
-
-    defaults:
-      run:
-        working-directory: ./AKS_TERRAFORM/environment/dev
-
-    steps:
-
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+- name: Terraform Plan
+  run: terraform plan
