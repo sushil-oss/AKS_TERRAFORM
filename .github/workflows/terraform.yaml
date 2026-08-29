@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./environment/dev
+        working-directory: ./AKS_TERRAFORM/environment/dev
 
     steps:
 
@@ -39,7 +39,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./environment/dev
+        # working-directory: ./AKS_TERRAFORM/environment/dev
 
     steps:
 
@@ -75,7 +75,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./environment/dev
+        working-directory: ./AKS_TERRAFORM/environment/dev
 
     steps:
 
